@@ -1,12 +1,15 @@
 # OP_KSUNext_SUSFS
-OnePlus Kernels with KernelSU Next Dev &amp; SUSFS (personal fork)
+OnePlus Kernels with KernelSU Next Dev &amp; SUSFS
 
-## Your warranty is <ins>no longer valid!</ins>
+this is a personal fork, all work goes to "Credits"
 
-I am **NOT RESPONSIBLE** for bricked devices, damaged hardware, or any issues that arise from using this kernel.
-
-By flashing this kernel, **YOU** are choosing to make these modifications. If something goes wrong, **DO NOT** blame me!
-## 🚧 Proceed at your own risk!
+> [!CAUTION]
+> ## Your warranty is <ins>no longer valid!</ins>
+>
+>I am **NOT RESPONSIBLE** for bricked devices, damaged hardware, or any issues that arise from using this kernel.
+>
+>By flashing this kernel, **YOU** are choosing to make these modifications. If something goes wrong, **DO NOT** blame me!
+> ##  Proceed at your own risk!
 
 ## 🚀 Credits
 
