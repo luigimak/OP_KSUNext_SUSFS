@@ -15,7 +15,6 @@ on:
 
 jobs:
   build-batch:
-    # needs: build-batch-1
     strategy:
       fail-fast: false
       matrix:
@@ -48,9 +47,9 @@ jobs:
       REPO_NAME: ${{ github.event.repository.name }}
       GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      RELEASE_NAME: "OnePlus 13 Kernel With KernelSU-Next & SUSFS"
+      RELEASE_NAME: "OnePlus 13 Kernel With KernelSU-Next Dev & SUSFS"
       RELEASE_NOTES: |
-        This release contains KernelSU-Next and SUSFS
+        This release contains KernelSU-Next Dev and SUSFS
 
         Module: 
         -> https://github.com/sidex15/ksu_module_susfs
@@ -59,7 +58,7 @@ jobs:
         -> https://github.com/KernelSU-Next/KernelSU-Next
 
         Features:
-        [+] KernelSU-Next ☯
+        [+] KernelSU-Next Dev ☯
         [+] SUSFS ඞ
         [+] Manual Syscall Hooks for Better Hiding
         [+] Wireguard Support
@@ -79,16 +78,16 @@ jobs:
         run: |
           set -x
           LATEST_TAG=$(gh api repos/$REPO_OWNER/$REPO_NAME/tags \
-            --jq '[.[].name | select(startswith("op13-r"))] | map(split("-r")[1] | tonumber) | max' \
+            --jq '[.[].name | select(startswith("op13-nsd"))] | map(split("-nsd")[1] | tonumber) | max' \
             || echo "0")
 
-          echo "Latest numeric suffix for op13-r*: $LATEST_TAG"
+          echo "Latest numeric suffix for op13-nsd*: $LATEST_TAG"
           NEXT_NUM=$((LATEST_TAG + 1))
-          NEW_TAG="op13-r$NEXT_NUM"
+          NEW_TAG="op13-nsd$NEXT_NUM"
 
           while gh api repos/$REPO_OWNER/$REPO_NAME/git/refs/tags | grep -q "\"ref\": \"refs/tags/$NEW_TAG\""; do
             NEXT_NUM=$((NEXT_NUM + 1))
-            NEW_TAG="op13-r$NEXT_NUM"
+            NEW_TAG="op13-nsd$NEXT_NUM"
           done
 
           echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
