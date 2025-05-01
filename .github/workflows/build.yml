@@ -125,16 +125,16 @@ jobs:
           cd "$CONFIG/kernel_platform"
           
           echo "Adding KernelSU-Next..."
-          curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -s next
+          #curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -s next
           #curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next-susfs/kernel/setup.sh" | bash -s next-susfs
-          #curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next-susfs-dev/kernel/setup.sh" | bash -s next-susfs-dev
+          curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next-susfs-dev/kernel/setup.sh" | bash -s next-susfs-dev
           
           git submodule update --init --recursive
           cd KernelSU-Next/kernel
           # next
-          KSU_VERSION=$(expr $(/usr/bin/git rev-list --count HEAD) "+" 10200)
+          #KSU_VERSION=$(expr $(/usr/bin/git rev-list --count HEAD) "+" 10200)
           # next-susfs & next-susfs-dev
-          #KSU_VERSION=$(expr $(/usr/bin/git rev-list --count HEAD) "+" 10198)
+          KSU_VERSION=$(expr $(/usr/bin/git rev-list --count HEAD) "+" 10198)
           echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
           echo "🔹Detected KernelSU-Next version: $KSU_VERSION"
           sed -i "s/DKSU_VERSION=11998/DKSU_VERSION=${KSU_VERSION}/" Makefile
