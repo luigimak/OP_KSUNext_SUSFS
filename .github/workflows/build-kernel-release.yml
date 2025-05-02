@@ -154,65 +154,108 @@ jobs:
       REPO_NAME: ${{ github.event.repository.name }}
       GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      RELEASE_NAME: "OnePlus Kernels With KernelSU-Next & SUSFS"
+      RELEASE_NAME: "OnePlus Kernels With KernelSU-Next Dev & SUSFS"
       RELEASE_NOTES: |
-        This release contains KernelSU-Next and SUSFS
+        This release contains KernelSU-Next Dev and SUSFS
 
         Module: 
         -> https://github.com/sidex15/ksu_module_susfs
 
-        Non-Official Managers:
+        KernelSU-Next Managers:
         -> https://github.com/KernelSU-Next/KernelSU-Next
 
         Features:
-        [+] KernelSU-Next
-        [+] SUSFS v1.5.7
+        [+] KernelSU-Next Dev ☯
+        [+] SUSFS 1.5.7 ඞ
+        [+] Manual Syscall Hooks for Better Hiding
         [+] Wireguard Support
-        [+] Maphide LineageOS Detections
+        [+] Simple Maphide LineageOS Detections
         [+] Futile Maphide for jit-zygote-cache Detections
         [+] Magic Mount Support
+        [+] BBR Support
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          fetch-depth: 0
 
       - name: Generate and Create New Tag
         run: |
           set -x
-          LATEST_TAG=$(gh api repos/$REPO_OWNER/$REPO_NAME/tags --jq '.[0].name' || echo "op-kernel-r0")
-          echo "Latest tag: $LATEST_TAG"
+          LATEST_TAG=$(gh api repos/$REPO_OWNER/$REPO_NAME/tags \
+            --jq '[.[].name | select(startswith("op-kernel-nsd"))] | map(split("-nsd")[1] | tonumber) | max' \
+            || echo "0")
 
-          if [[ "$LATEST_TAG" != op-kernel-* ]]; then
-            LATEST_TAG="op-kernel-r0"
-          fi
+          echo "Latest numeric suffix for op-kernel-nsd*: $LATEST_TAG"
+          NEXT_NUM=$((LATEST_TAG + 1))
+          NEW_TAG="op-kernel-nsd$NEXT_NUM"
 
-          NEW_TAG=$(echo "$LATEST_TAG" | awk -F'-r' '{v=$2+1; print $1"-r"v}')
-          while git ls-remote --tags origin | grep -q "refs/tags/$NEW_TAG$"; do
-            NEW_TAG=$(echo "$NEW_TAG" | awk -F'-r' '{v=$2+1; print $1"-r"v}')
+          while gh api repos/$REPO_OWNER/$REPO_NAME/git/refs/tags | grep -q "\"ref\": \"refs/tags/$NEW_TAG\""; do
+            NEXT_NUM=$((NEXT_NUM + 1))
+            NEW_TAG="op-kernel-nsd$NEXT_NUM"
           done
+
           echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
-          echo "Generated unique tag: $NEW_TAG"
+          echo "🔹Generated unique tag: $NEW_TAG"
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+          if git status --porcelain | grep -qE '\.github/workflows/'; then
+            echo "⚠️ Workflow files modified, creating empty commit..."
+            git commit --allow-empty -m "Empty commit to avoid workflow permission issue"
+            git push
+          else
+            echo "✅ No workflow changes detected."
+          fi
+
           git tag "$NEW_TAG"
           git push origin "$NEW_TAG"
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
           path: ./downloaded-artifacts
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ env.NEW_TAG }}
-          prerelease: true
-          name: ${{ env.RELEASE_NAME }}
-          body: ${{ env.RELEASE_NOTES }}
+      - name: Create GitHub Release with Retry
+        run: |
+          set -x
+          ATTEMPTS=0
+          MAX_ATTEMPTS=3
+          DELAY_SECONDS=10
+
+          while true; do
+            set +e
+            echo "Attempt $((ATTEMPTS+1)) to create GitHub Release..."
+            gh release create "${{ env.NEW_TAG }}" --title "${{ env.RELEASE_NAME }}" --notes "${{ env.RELEASE_NOTES }}" --prerelease
+            EXIT_CODE=$?
+            set -e
+
+            if [ $EXIT_CODE -eq 0 ]; then
+              echo "✅ GitHub Release created successfully!"
+              break
+            fi
+
+            ATTEMPTS=$((ATTEMPTS+1))
+            if [ $ATTEMPTS -ge $MAX_ATTEMPTS ]; then
+              echo "❌ Failed to create GitHub Release after $MAX_ATTEMPTS attempts."
+              exit 1
+            fi
+
+            echo "⚠️ GitHub Release creation failed (attempt $ATTEMPTS). Retrying in $DELAY_SECONDS seconds..."
+            sleep $DELAY_SECONDS
+          done
         env:
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          RELEASE_NAME: ${{ env.RELEASE_NAME }}
+          RELEASE_NOTES: ${{ env.RELEASE_NOTES }}
+          NEW_TAG: ${{ env.NEW_TAG }}
 
       - name: Upload Release Assets Dynamically
         run: |
@@ -225,7 +268,7 @@ jobs:
               gh release upload ${{ env.NEW_TAG }} "$file"
           done
         env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           NEW_TAG: ${{ env.NEW_TAG }}
 
       - name: Display Files Uploaded
