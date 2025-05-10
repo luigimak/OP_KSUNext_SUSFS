@@ -188,12 +188,13 @@ jobs:
           cp ../../../kernel_patches/69_hide_stuff.patch ./
           patch -p1 --fuzz=3 < 69_hide_stuff.patch || true
           
-      - name: Add Manager Patch
-        run: |
-          cd "$CONFIG/kernel_platform/KernelSU"
-          echo "Applying Manager patch for KernelSU..."
-          cp ../../../kernel_patches/ksu/manager.patch ./
-          patch -p1 --fuzz=3 < manager.patch || echo "No Manager Patch"
+#      - name: Add Manager Patch
+#        run: |
+#          set -x
+#          cd "$CONFIG/kernel_platform/KernelSU"
+#          echo "Applying Manager patch for KernelSU..."
+#          cp ../../../kernel_patches/ksu/manager.patch ./
+#          patch -p1 --fuzz=3 < manager.patch || echo "No Manager Patch"
 
       - name: Add SUSFS Configuration Settings
         run: |
