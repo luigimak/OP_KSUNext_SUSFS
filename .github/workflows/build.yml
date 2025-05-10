@@ -190,8 +190,8 @@ jobs:
           
       - name: Add Manager Patch
         run: |
-          cd "$CONFIG/kernel_platform/KernelSU-Next"
-          echo "Applying Manager patch for KernelSU Next..."
+          cd "$CONFIG/kernel_platform/KernelSU"
+          echo "Applying Manager patch for KernelSU..."
           cp ../../../kernel_patches/ksu/manager.patch ./
           patch -p1 --fuzz=3 < manager.patch || echo "No Manager Patch"
 
