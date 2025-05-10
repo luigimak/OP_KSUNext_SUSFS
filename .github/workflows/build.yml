@@ -93,7 +93,6 @@ jobs:
           git clone https://github.com/TheWildJames/AnyKernel3.git -b "$ANYKERNEL_BRANCH"
           git clone https://gitlab.com/simonpunk/susfs4ksu.git -b "$SUSFS_BRANCH"
           git clone https://github.com/TheWildJames/kernel_patches.git
-          #git clone https://github.com/luigimak/kernel_patches.git
 
       - name: Get SUSFS Version
         run: |
@@ -126,19 +125,13 @@ jobs:
           
           echo "Adding KernelSU..."
           curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main
-#          curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -s next
-#          curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next-susfs/kernel/setup.sh" | bash -s next-susfs
-#          curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next-susfs-dev/kernel/setup.sh" | bash -s next-susfs-dev
           
-#          git submodule update --init --recursive
-#          cd KernelSU-Next/kernel
-#          # next
-#          KSU_VERSION=$(expr $(/usr/bin/git rev-list --count HEAD) "+" 10200)
-#          # next-susfs & next-susfs-dev
-#          #KSU_VERSION=$(expr $(/usr/bin/git rev-list --count HEAD) "+" 10198)
-#          echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
-#          echo "🔹Detected KernelSU-Next version: $KSU_VERSION"
-#          sed -i "s/DKSU_VERSION=11998/DKSU_VERSION=${KSU_VERSION}/" Makefile
+          git submodule update --init --recursive
+          cd KernelSU-Next/kernel
+          KSU_VERSION=$(expr $(/usr/bin/git rev-list --count HEAD) "+" 10200)
+          echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
+          echo "🔹Detected KernelSU-Next version: $KSU_VERSION"
+          sed -i "s/DKSU_VERSION=11998/DKSU_VERSION=${KSU_VERSION}/" Makefile
 
       - name: Apply SUSFS Patches
         run: |
@@ -154,14 +147,10 @@ jobs:
           cp ../../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
           
           cd ./KernelSU
-
+          
           echo "Applying SUSFS patches for Official KernelSU..."
           cp ../../../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./
           patch -p1 --forward --fuzz=3 < 10_enable_susfs_for_ksu.patch
-          
-          #echo "Applying next SUSFS patches..."
-          #cp ../../../kernel_patches/next/kernel-patch-susfs-v1.5.7-to-KernelSU-Next.patch ./
-          #patch -p1 --forward < kernel-patch-susfs-v1.5.7-to-KernelSU-Next.patch || true
           
           # Change to common directory and apply SUSFS patch
           cd ../common
