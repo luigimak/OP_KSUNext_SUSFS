@@ -118,26 +118,27 @@ jobs:
           $REPO --version
           $REPO --trace sync -c --no-clone-bundle --no-tags --optimized-fetch -j$(nproc --all) --fail-fast
       
-      - name: Add KernelSU-Next
+      - name: Add KernelSU
         run: |
           set -x
           echo "Changing to configuration directory: $CONFIG..."
           cd "$CONFIG/kernel_platform"
           
-          echo "Adding KernelSU-Next..."
-          curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -s next
-          #curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next-susfs/kernel/setup.sh" | bash -s next-susfs
-          #curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next-susfs-dev/kernel/setup.sh" | bash -s next-susfs-dev
+          echo "Adding KernelSU..."
+          curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main
+#          curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -s next
+#          curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next-susfs/kernel/setup.sh" | bash -s next-susfs
+#          curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next-susfs-dev/kernel/setup.sh" | bash -s next-susfs-dev
           
-          git submodule update --init --recursive
-          cd KernelSU-Next/kernel
-          # next
-          KSU_VERSION=$(expr $(/usr/bin/git rev-list --count HEAD) "+" 10200)
-          # next-susfs & next-susfs-dev
-          #KSU_VERSION=$(expr $(/usr/bin/git rev-list --count HEAD) "+" 10198)
-          echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
-          echo "🔹Detected KernelSU-Next version: $KSU_VERSION"
-          sed -i "s/DKSU_VERSION=11998/DKSU_VERSION=${KSU_VERSION}/" Makefile
+#          git submodule update --init --recursive
+#          cd KernelSU-Next/kernel
+#          # next
+#          KSU_VERSION=$(expr $(/usr/bin/git rev-list --count HEAD) "+" 10200)
+#          # next-susfs & next-susfs-dev
+#          #KSU_VERSION=$(expr $(/usr/bin/git rev-list --count HEAD) "+" 10198)
+#          echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
+#          echo "🔹Detected KernelSU-Next version: $KSU_VERSION"
+#          sed -i "s/DKSU_VERSION=11998/DKSU_VERSION=${KSU_VERSION}/" Makefile
 
       - name: Apply SUSFS Patches
         run: |
@@ -152,11 +153,15 @@ jobs:
           cp ../../susfs4ksu/kernel_patches/fs/* ./common/fs/
           cp ../../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
           
-          cd ./KernelSU-Next
+          cd ./KernelSU
+
+          echo "Applying SUSFS patches for Official KernelSU..."
+          cp ../../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./
+          patch -p1 --forward --fuzz=3 < 10_enable_susfs_for_ksu.patch
           
-          echo "Applying next SUSFS patches..."
-          cp ../../../kernel_patches/next/kernel-patch-susfs-v1.5.7-to-KernelSU-Next.patch ./
-          patch -p1 --forward < kernel-patch-susfs-v1.5.7-to-KernelSU-Next.patch || true
+          #echo "Applying next SUSFS patches..."
+          #cp ../../../kernel_patches/next/kernel-patch-susfs-v1.5.7-to-KernelSU-Next.patch ./
+          #patch -p1 --forward < kernel-patch-susfs-v1.5.7-to-KernelSU-Next.patch || true
           
           # Change to common directory and apply SUSFS patch
           cd ../common
@@ -165,14 +170,14 @@ jobs:
           fi
           patch -p1 < 50_add_susfs_in_gki-${{ inputs.android_version }}-${{ inputs.kernel_version }}.patch || true
 
-      - name: Apply KernelSU-Next Hooks
-        run: |
-          set -x
-          echo "Changing to configuration directory: $CONFIG..."
-          cd "$CONFIG/kernel_platform/common"
-          # Apply additional patch
-          cp ../../../kernel_patches/next/syscall_hooks.patch ./
-          patch -p1 --fuzz=3 < ./syscall_hooks.patch || true
+#      - name: Apply KernelSU-Next Hooks
+#        run: |
+#          set -x
+#          echo "Changing to configuration directory: $CONFIG..."
+#          cd "$CONFIG/kernel_platform/common"
+#          # Apply additional patch
+#          cp ../../../kernel_patches/next/syscall_hooks.patch ./
+#          patch -p1 --fuzz=3 < ./syscall_hooks.patch || true
           
       - name: Apply Hide Stuff Patches
         run: |
@@ -181,14 +186,14 @@ jobs:
           cd "$CONFIG/kernel_platform/common"
           # Apply additional patch
           cp ../../../kernel_patches/69_hide_stuff.patch ./
-          patch -p1 -F 3 < 69_hide_stuff.patch || true
+          patch -p1 --fuzz=3 < 69_hide_stuff.patch || true
           
       - name: Add Manager Patch
         run: |
           cd "$CONFIG/kernel_platform/KernelSU-Next"
           echo "Applying Manager patch for KernelSU Next..."
-          cp ../../../kernel_patches/next/manager.patch ./
-          patch -p1 --fuzz=3 < manager.patch || true
+          cp ../../../kernel_patches/ksu/manager.patch ./
+          patch -p1 --fuzz=3 < manager.patch || echo "No Manager Patch"
 
       - name: Add SUSFS Configuration Settings
         run: |
@@ -200,7 +205,7 @@ jobs:
 
           # Add KSU configuration settings
           echo "CONFIG_KSU=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_WITH_KPROBES=n" >> ./common/arch/arm64/configs/gki_defconfig
+          #echo "CONFIG_KSU_WITH_KPROBES=n" >> ./common/arch/arm64/configs/gki_defconfig
           
           # Add SUSFS configuration settings
           echo "CONFIG_KSU_SUSFS=y" >> ./common/arch/arm64/configs/gki_defconfig
@@ -218,7 +223,7 @@ jobs:
           echo "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_SUS_SU=y" >> ./common/arch/arm64/configs/gki_defconfig
           
           # Add additional tmpfs config setting
           echo "CONFIG_TMPFS_XATTR=y" >> ./common/arch/arm64/configs/gki_defconfig
@@ -327,7 +332,7 @@ jobs:
           cd ./AnyKernel3
 
           # Zip the files in the AnyKernel3 directory with a new naming convention
-          ZIP_NAME="${{ inputs.model }}_${{ inputs.android_version }}_${{ inputs.kernel_version }}_KSUN-${{ env.KSUVER }}_SUSFS-${{ env.SUSFSVER }}_AnyKernel3.zip"
+          ZIP_NAME="${{ inputs.model }}_${{ inputs.android_version }}_${{ inputs.kernel_version }}_KSU_SUSFS-${{ env.SUSFSVER }}_AnyKernel3.zip"
           echo "Creating zip file $ZIP_NAME..."
           zip -r "../$ZIP_NAME" ./*
 
