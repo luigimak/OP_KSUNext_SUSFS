@@ -47,18 +47,18 @@ jobs:
       REPO_NAME: ${{ github.event.repository.name }}
       GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      RELEASE_NAME: "OnePlus 13 Kernel With KernelSU-Next & SUSFS"
+      RELEASE_NAME: "OnePlus 13 Kernel With KernelSU & SUSFS"
       RELEASE_NOTES: |
-        This release contains KernelSU-Next and SUSFS
+        This release contains KernelSU and SUSFS
 
         Module: 
         ඞ https://github.com/sidex15/ksu_module_susfs
 
         KernelSU-Next Managers:
-        ☯ https://github.com/KernelSU-Next/KernelSU-Next
+        https://github.com/tiann/KernelSU
 
         Features:
-        🔹 KernelSU-Next 
+        🔹 KernelSU 1.0.5 
         🔹 SUSFS 1.5.7 
         🔹 Manual Syscall Hooks for Better Hiding
         🔹 Wireguard Support
@@ -109,7 +109,7 @@ jobs:
           git tag "$NEW_TAG"
           git push origin "$NEW_TAG"
         env:
-          TAG_PREFIX: op13-n
+          TAG_PREFIX: op13-ksu
           GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
