@@ -1,5 +1,5 @@
 # OP_KSUNext_SUSFS
-OnePlus Kernels with KernelSU Next &amp; SUSFS
+OnePlus Kernels with KernelSU &amp; SUSFS
 
 this is a personal fork, all work goes to "Credits"
 
@@ -17,6 +17,7 @@ https://github.com/fatalcoder524/KernelFlasher
 ## 🚀 Credits
 
 - [@fatalcoder524](https://github.com/fatalcoder524/OnePlus_KernelSU_SUSFS), [@TheWildJames](https://github.com/WildPlusKernel/OnePlus_KernelSU_SUSFS) and [@FerGus786](https://github.com/WildPlusKernel/OnePlus_KernelSU_SUSFS) : Original projects. 🙏
+- [@tiann](https://github.com/tiann/KernelSU) : KernelSU idea.
 - [@RifsxD](https://github.com/KernelSU-Next/KernelSU-Next) : KernelSU-Next idea.
 - [@simonpunk](https://gitlab.com/simonpunk/susfs4ksu.git) : SUSFS patches.
 - [@sidex15](https://github.com/sidex15/susfs4ksu-module) : SUSFS userspace tool.
