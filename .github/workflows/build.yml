@@ -162,8 +162,12 @@ jobs:
           
           # Change to common directory and apply SUSFS patch
           cd ../common
-          if [ "${{ inputs.soc }}" == "sun" ]; then
-            sed -i '/#include <trace\/hooks\/blk.h>/a #include <trace/hooks/fs.h>' ./fs/namespace.c
+          if [ "${{ inputs.soc }}" = "sun" ];
+              if ! grep -qxF '#include <trace/hooks/fs.h>' ./fs/namespace.c; then
+                  sed -i '/#include <trace\/hooks\/blk.h>/a #include <trace\/hooks\/fs.h>' ./fs/namespace.c
+              else
+                  echo "Line already present. Skipping insert."
+              fi
           fi
           echo "Applying 50_add_susfs_in_gki-.patch..."
           patch -p1 --verbose < 50_add_susfs_in_gki-${{ inputs.android_version }}-${{ inputs.kernel_version }}.patch || true
@@ -173,8 +177,8 @@ jobs:
           KERNEL_VERSION="${{ inputs.kernel_version }}"
           MIN_VERSION="5.16"
           
-          if [ "$(printf '%s\n' "$KERNEL_VERSION" "$MIN_VERSION" | sort -V | head -n1)" = "$KERNEL_VERSION" ]; thenAdd commentMore actions
-            echo "Patching ptrace!"
+          if [ "$(printf '%s\n' "$KERNEL_VERSION" "$MIN_VERSION" | sort -V | head -n1)" = "$KERNEL_VERSION" ];
+            echo "Applying ptrace.patch!"
             curl -Ls https://raw.githubusercontent.com/fatalcoder524/kernel_patches_additional/refs/heads/main/ptrace.patch  | patch -p1 -F 3 --verbose
             ls -l *.rej || true
             cat *.rej || true
