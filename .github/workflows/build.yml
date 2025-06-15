@@ -170,6 +170,18 @@ jobs:
           ls -l *.rej || true
           cat *.rej || true
 
+          KERNEL_VERSION="${{ inputs.kernel_version }}"
+          MIN_VERSION="5.16"
+          
+          if [ "$(printf '%s\n' "$KERNEL_VERSION" "$MIN_VERSION" | sort -V | head -n1)" = "$KERNEL_VERSION" ]; thenAdd commentMore actions
+            echo "Patching ptrace!"
+            curl -Ls https://raw.githubusercontent.com/fatalcoder524/kernel_patches_additional/refs/heads/main/ptrace.patch  | patch -p1 -F 3 --verbose
+            ls -l *.rej || true
+            cat *.rej || true
+          else
+            echo "Kernel >= $MIN_VERSION, skipping ptrace patch"
+          fi
+
       - name: Apply KernelSU-Next Hooks
         run: |
           set -x
