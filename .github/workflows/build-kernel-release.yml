@@ -163,24 +163,30 @@ jobs:
       RELEASE_NOTES: |
         This release contains KernelSU-Next and SUSFS
 
-        ඞ SUSFS Module: 
-        https://github.com/sidex15/ksu_module_susfs
-
         ☯ KernelSU-Next Managers:
         https://github.com/KernelSU-Next/KernelSU-Next
+
+        ඞ SUSFS Module:
+        https://github.com/sidex15/ksu_module_susfs
 
         BBR Module:
         https://github.com/fatalcoder524/TCP_Optimiser_Module
 
+        Kernel Flasher recommended:
+        https://github.com/fatalcoder524/KernelFlasher
+
         Features:
-        🔹 KernelSU-Next 1.0.7
+        🔹 KernelSU-Next 1.0.8
         🔹 SUSFS 1.5.7 
-        🔹 Manual Syscall Hooks for Better Hiding
+        🔹 Manual Hooks [scope_min_manual_hooks_v1.4]
         🔹 Wireguard Support
-        🔹 Simple Maphide LineageOS Detections
+        🔹 Maphide LineageOS Detections
         🔹 Futile Maphide for jit-zygote-cache Detections
         🔹 Magic Mount Support
-        🔹 BBR Support
+        🔹 Ptrace message leak fix for kernels < 5.16
+        🔹 CMD_SUSFS_HIDE_SUS_MNTS_FOR_ALL_PROCS Support for all kernels.
+        🔹 CONFIG_TMPFS_XATTR Support [Mountify Support]
+        🔹 BBR v1 Support.
 
     steps:
       - name: Checkout code
