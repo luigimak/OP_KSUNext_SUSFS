@@ -12,6 +12,11 @@ on:
         required: true
         type: boolean
         default: true
+      set_prerelease:
+        description: 'Set release as prerelease?'
+        required: true
+        type: boolean
+        default: false
 
 jobs:
   build-batch:
@@ -51,21 +56,30 @@ jobs:
       RELEASE_NOTES: |
         This release contains KernelSU-Next and SUSFS
 
-        Module: 
-        ඞ https://github.com/sidex15/ksu_module_susfs
+        ☯ KernelSU-Next Managers:
+        https://github.com/KernelSU-Next/KernelSU-Next
 
-        KernelSU-Next Managers:
-        ☯ https://github.com/KernelSU-Next/KernelSU-Next
+        ඞ SUSFS Module:
+        https://github.com/sidex15/ksu_module_susfs
+
+        BBR Module:
+        https://github.com/fatalcoder524/TCP_Optimiser_Module
+
+        Kernel Flasher recommended:
+        https://github.com/fatalcoder524/KernelFlasher
 
         Features:
-        🔹 KernelSU-Next 
+        🔹 KernelSU-Next 1.0.8
         🔹 SUSFS 1.5.7 
-        🔹 Manual Syscall Hooks for Better Hiding
+        🔹 Manual Hooks [scope_min_manual_hooks_v1.4]
         🔹 Wireguard Support
-        🔹 Simple Maphide LineageOS Detections
+        🔹 Maphide LineageOS Detections
         🔹 Futile Maphide for jit-zygote-cache Detections
         🔹 Magic Mount Support
-        🔹 BBR Support
+        🔹 Ptrace message leak fix for kernels < 5.16
+        🔹 CMD_SUSFS_HIDE_SUS_MNTS_FOR_ALL_PROCS Support for all kernels.
+        🔹 CONFIG_TMPFS_XATTR Support [Mountify Support]
+        🔹 BBR v1 Support.
 
     steps:
       - name: Checkout code
@@ -125,10 +139,17 @@ jobs:
           MAX_ATTEMPTS=3
           DELAY_SECONDS=10
 
+          # flag prerelease
+          if [ "${{ inputs.set_prerelease }}" = "true" ] || [ "${{ inputs.set_prerelease }}" = true ]; then
+            PRERELEASE_FLAG="--prerelease"
+          else
+            PRERELEASE_FLAG=""
+          fi
+
           while true; do
             set +e
             echo "Attempt $((ATTEMPTS+1)) to create GitHub Release..."
-            gh release create "${{ env.NEW_TAG }}" --title "${{ env.RELEASE_NAME }}" --notes "${{ env.RELEASE_NOTES }}" --prerelease
+            gh release create "${{ env.NEW_TAG }}" --title "${{ env.RELEASE_NAME }}" --notes "${{ env.RELEASE_NOTES }}" $PRERELEASE_FLAG
             EXIT_CODE=$?
             set -e
 
