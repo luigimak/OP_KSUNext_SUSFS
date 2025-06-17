@@ -154,11 +154,23 @@ jobs:
           
           cd ./KernelSU-Next
           
-          echo "Applying kernel-patch-susfs-v1.5.7-to-KernelSU-Next.patch..."
-          cp ../../../kernel_patches/next/ksun_susfs_v1.5.7_patch_12647+.patch ./
-          patch -p1 --forward --verbose < ksun_susfs_v1.5.7_patch_12647+.patch || true
+          if [ "$SUSFSVER" = "1.5.8" ]; then
+            echo "Applying 0001-kernel-implement-susfs-v1.5.8-KernelSU-Next-v1.0.8.patch"
+            cp ../../../kernel_patches/next/0001-kernel-implement-susfs-v1.5.8-KernelSU-Next-v1.0.8.patch ./
+            patch -p1 --forward --verbose < 0001-kernel-implement-susfs-v1.5.8-KernelSU-Next-v1.0.8.patch || true
+          else
+            echo "Applying ksun_susfs_v1.5.7_patch_12647+.patch"
+            cp ../../../kernel_patches/next/ksun_susfs_v1.5.7_patch_12647+.patch ./
+            patch -p1 --forward --verbose < ksun_susfs_v1.5.7_patch_12647+.patch || true
+          fi
           ls -l *.rej || true
           cat *.rej || true
+          
+          #echo "Applying kernel-patch-susfs-v1.5.7-to-KernelSU-Next.patch..."
+          #cp ../../../kernel_patches/next/ksun_susfs_v1.5.7_patch_12647+.patch ./
+          #patch -p1 --forward --verbose < ksun_susfs_v1.5.7_patch_12647+.patch || true
+          #ls -l *.rej || true
+          #cat *.rej || true
           
           # Change to common directory and apply SUSFS patch
           cd ../common
