@@ -174,7 +174,8 @@ jobs:
           
           # Change to common directory and apply SUSFS patch
           cd ../common
-          if [ "${{ inputs.soc }}" = "sun" ]; then
+          #if [ "${{ inputs.soc }}" = "sun" ]; then
+          if [ "${{ inputs.android_version }}" = "android15" ] && [ "${{ inputs.kernel_version }}" = "6.6" ]; then
               if ! grep -qxF '#include <trace/hooks/fs.h>' ./fs/namespace.c; then
                   sed -i '/#include <trace\/hooks\/blk.h>/a #include <trace\/hooks\/fs.h>' ./fs/namespace.c
               else
