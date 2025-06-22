@@ -70,7 +70,7 @@ jobs:
 
         Features:
         🔹 KernelSU-Next 1.0.8
-        🔹 SUSFS 1.5.7 
+        🔹 SUSFS 1.5.8
         🔹 Manual Hooks [scope_min_manual_hooks_v1.4]
         🔹 Wireguard Support
         🔹 Maphide LineageOS Detections
